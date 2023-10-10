@@ -23,6 +23,9 @@ ASCharacter::ASCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
+
+	GetCharacterMovement()->JumpZVelocity = 500.0f;
+	GetCharacterMovement()->AirControl = 0.15f;
 }
 
 // Called when the game starts or when spawned
@@ -46,15 +49,10 @@ void ASCharacter::MoveRight(float value)
 	//AddMovementInput(GetActorRightVector(), value);
 
 	FRotator CtrlRot = GetControlRotation();
-	//CtrlRot.Pitch = 0.0f;
-	//CtrlRot.Roll = 0.0f;
 
 	//// X = Forward	Red
 	//// Y = Right	Green
 	//// Z = Up		Blue
-	//FVector RightVector = FRotationMatrix(CtrlRot).GetScaleVector(EAxis::Type::Y);
-
-	//AddMovementInput(RightVector, value);
 
 	const FVector RightVector = UKismetMathLibrary::GetRightVector(CtrlRot);
 	AddMovementInput(RightVector, value);
@@ -71,6 +69,11 @@ void ASCharacter::PrimaryAttack()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnTM, SpawnParams);
+}
+
+void ASCharacter::Jump()
+{
+	Super::Jump();
 }
 
 // Called every frame
@@ -92,5 +95,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ASCharacter::Jump);
 }
 
